@@ -1,0 +1,42 @@
+{
+	"builders": [
+		{
+			"type": "virtualbox-ovf",
+			"source_path": "/Users/hopson/.vagrant.d/boxes/minimal-VAGRANTSLASH-xenial64/16.04.2/virtualbox/box.ovf",
+			"shutdown_command": "sudo shutdown -P now",
+			"ssh_username": "vagrant",
+			"ssh_password": "vagrant",
+			"output_directory": "./packer",
+			"headless": true
+		},
+		{
+			"type": "docker",
+			"image": "ubuntu:xenial",
+			"commit": true,
+			"changes": [
+				"CMD [\"nginx\", \"-g\", \"daemon off;\"]"
+			]
+		}
+
+	],
+	"provisioners": [
+		{
+			"type": "shell",
+			"script": "provision.sh"
+		}
+	],
+	"post-processors": [
+		{
+			"type": "vagrant",
+			"vagrantfile_template": "./Vagrantfile-template",
+			"only": [ "virtualbox-ovf" ]
+		},
+		{
+			"type": "docker-tag",
+			"repository": "demo",
+			"tag": "latest",
+			"only": [ "docker" ]
+
+		}
+	]
+}
